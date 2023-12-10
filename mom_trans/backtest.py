@@ -521,8 +521,8 @@ def run_single_window(
     best_model.save_weights(os.path.join(best_directory, "checkpoints", "checkpoint"))
     with open(os.path.join(best_directory, "hyperparameters.json"), "w") as file:
         file.write(json.dumps(best_hp, indent=4))
-    logging.info(f'Removing hyperparameter search results in {hp_directory}')
-    shutil.rmtree(hp_directory)
+    # logging.info(f'Removing hyperparameter search results in {hp_directory}')
+    # shutil.rmtree(hp_directory)
 
     save_results(
         results_sw,
