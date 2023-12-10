@@ -70,8 +70,7 @@ def calc_net_returns(data: pd.DataFrame, list_basis_points: List[float], identif
         data_slice = data[data["identifier"] == i].reset_index(drop=True)
         annualised_vol = data_slice["daily_vol"] * np.sqrt(252)
         scaled_position = VOL_TARGET * data_slice["position"] / annualised_vol
-        transaction_costs = scaled_position.diff().abs().fillna(
-            0.0).to_frame().to_numpy() * cost  # TODO should probably fill first with initial cost
+        transaction_costs = scaled_position.diff().abs().fillna(0.0).to_frame().to_numpy() * cost  # TODO should probably fill first with initial cost
         net_captured_returns = data_slice[["captured_returns"]].to_numpy() - transaction_costs
         columns = list(map(lambda c: "captured_returns_" + str(c).replace(".", "_") + "_bps", list_basis_points))
         dfs.append(pd.concat([data_slice, pd.DataFrame(net_captured_returns, columns=columns)], axis=1))
@@ -127,7 +126,7 @@ def calc_daily_vol(daily_returns):
     return (
         daily_returns.ewm(span=VOL_LOOKBACK, min_periods=VOL_LOOKBACK)
         .std()
-        .fillna(method="bfill")
+        .bfill()
     )
 
 
@@ -202,8 +201,8 @@ class MACDStrategy:
                 srs.ewm(halflife=_calc_halflife(short_timescale)).mean()
                 - srs.ewm(halflife=_calc_halflife(long_timescale)).mean()
         )
-        q = macd / srs.rolling(63).std().fillna(method="bfill")
-        return q / q.rolling(252).std().fillna(method="bfill")
+        q = macd / srs.rolling(63).std().bfill()
+        return q / q.rolling(252).std().bfill()
 
     @staticmethod
     def scale_signal(y):

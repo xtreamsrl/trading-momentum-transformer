@@ -1,6 +1,7 @@
 quandl==3.7.0
 pandas==2.1.3
 tensorflow==2.15.0
+tensorboard==2.15.0
 keras==2.15.0
 numpy==1.26.2
 gpflow==2.9.0
