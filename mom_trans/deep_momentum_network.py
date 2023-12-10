@@ -28,7 +28,7 @@ class SharpeLoss(keras.losses.Loss):
 
     def call(self, y_true, y_pred):
         captured_returns = y_pred * y_true
-        sharpe = tf.reduce_mean(captured_returns) / (tf.reduce_std(captured_returns) + 1e-9) * tf.sqrt(252.0)
+        sharpe = tf.reduce_mean(captured_returns) / (tf.math.reduce_std(captured_returns) + 1e-9) * tf.sqrt(252.0)
         return -sharpe
 
 
@@ -79,7 +79,7 @@ class SharpeValidationLoss(keras.callbacks.Callback):
         # ignoring null times
 
         # TODO sharpe
-        sharpe = tf.reduce_mean(captured_returns) / (tf.reduce_std(captured_returns) + 1e-9) * tf.sqrt(252.0)
+        sharpe = tf.reduce_mean(captured_returns) / (tf.math.reduce_std(captured_returns) + tf.constant(1e-9, dtype=tf.float64)) * tf.sqrt(tf.constant(252.0, dtype=tf.float64))
         if sharpe > self.best_sharpe + self.min_delta:
             logging.info(f"Epoch {epoch} -> Sharpe on validation improved from {self.best_sharpe} to {sharpe}")
             self.best_sharpe = sharpe
@@ -197,6 +197,7 @@ class DeepMomentumNetworkModel(ABC):
     def __init__(self, project_name, hp_directory, hp_minibatch_size, **params):
         params = params.copy()
 
+        self.hp_directory = hp_directory
         self.time_steps = int(params["total_time_steps"])
         self.input_size = int(params["input_size"])
         self.output_size = int(params["output_size"])
@@ -268,6 +269,7 @@ class DeepMomentumNetworkModel(ABC):
                     self.n_multiprocessing_workers,
                 ),
                 keras.callbacks.TerminateOnNaN(),
+                keras.callbacks.TensorBoard(f"{self.hp_directory}/tb_logs")
             ]
             # self.model.run_eagerly = True
             self.tuner.search(
