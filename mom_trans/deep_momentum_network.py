@@ -96,8 +96,9 @@ class SharpeValidationLoss(keras.callbacks.Callback):
                 self.stopped_epoch = epoch
                 self.model.stop_training = True
                 self.model.load_weights(self.weights_save_location)
-        logs["sharpe"] = sharpe  # for keras tuner
-        logging.info(f"Epoch {epoch} -> Train loss: {logs['loss']}, Val loss: {logs['val_loss']}")
+        logs["val_sharpe"] = sharpe  # for keras tuner
+        logs["sharpe"] = -logs['loss']
+        logging.info(f"Epoch {epoch} -> Train sharpe: {logs['sharpe']},  Validation Sharpe: {logs['val_sharpe']}")
 
 
 # Tuner = RandomSearch
@@ -160,6 +161,8 @@ class TunerDiversifiedSharpe(kt.tuners.RandomSearch):
 
     def run_trial(self, trial, *args, **kwargs):
         kwargs["batch_size"] = trial.hyperparameters.Choice("batch_size", values=self.hp_minibatch_size)
+        logging.info(f"Running trial {trial.trial_id}")
+        logging.info(f"Trial hyperparameters: {trial.hyperparameters.values}")
 
         original_callbacks = kwargs.pop("callbacks", [])
 
@@ -219,7 +222,7 @@ class DeepMomentumNetworkModel(ABC):
             logging.info("Building model with TunerDiversifiedSharpe")
             self.tuner = TunerDiversifiedSharpe(
                 model_builder,
-                objective=kt.Objective("sharpe", "max"),
+                objective=kt.Objective("val_sharpe", "max"),
                 hp_minibatch_size=hp_minibatch_size,
                 max_trials=self.random_search_iterations,
                 directory=hp_directory,
@@ -277,11 +280,6 @@ class DeepMomentumNetworkModel(ABC):
                 y=labels,
                 sample_weight=active_flags,
                 epochs=self.num_epochs,
-                validation_data=(
-                    val_data,
-                    val_labels,
-                    val_flags,
-                ),
                 callbacks=callbacks,
                 shuffle=True,
                 use_multiprocessing=True,
@@ -358,11 +356,6 @@ class DeepMomentumNetworkModel(ABC):
                 sample_weight=active_flags,
                 epochs=self.num_epochs,
                 batch_size=hyperparameters["batch_size"],
-                validation_data=(
-                    val_data,
-                    val_labels,
-                    val_flags,
-                ),
                 callbacks=callbacks,
                 shuffle=True,
                 use_multiprocessing=True,
@@ -523,6 +516,5 @@ class LstmDeepMomentumNetworkModel(DeepMomentumNetworkModel):
             loss=sharpe_loss,
             optimizer=adam,
             sample_weight_mode="temporal",
-            weighted_metrics=[sharpe_loss]
         )
         return model

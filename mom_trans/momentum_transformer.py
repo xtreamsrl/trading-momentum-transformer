@@ -607,7 +607,7 @@ class TftDeepMomentumNetworkModel(DeepMomentumNetworkModel):
 
         sharpe_loss = SharpeLoss(self.output_size).call
 
-        model.compile(loss=sharpe_loss, optimizer=adam, sample_weight_mode="temporal", weighted_metrics=[sharpe_loss])
+        model.compile(loss=sharpe_loss, optimizer=adam, sample_weight_mode="temporal")
 
         self._input_placeholder = all_inputs
 
