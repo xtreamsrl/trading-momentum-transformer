@@ -134,6 +134,7 @@ def main(
         logging.info(f"Asset class mapping: {ASSET_CLASS_MAPPING}")
         logging.info(f"HP minibatch size: {hp_minibatch_size}")
         logging.info(f"Test window size: {test_window_size}")
+        logging.info(f"GPU available: {tf.config.list_physical_devices('GPU')}")
         tf.config.set_visible_devices([], 'GPU')  # disable GPU as the batch size is too small
         run_all_windows(
             PROJECT_NAME,
