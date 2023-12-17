@@ -5,6 +5,7 @@ from datetime import datetime
 from functools import reduce
 
 import numpy as np
+import tensorflow as tf
 
 from mom_trans.backtest import run_all_windows
 from settings.default import QUANDL_TICKERS
@@ -133,6 +134,7 @@ def main(
         logging.info(f"Asset class mapping: {ASSET_CLASS_MAPPING}")
         logging.info(f"HP minibatch size: {hp_minibatch_size}")
         logging.info(f"Test window size: {test_window_size}")
+        tf.config.set_visible_devices([], 'GPU')  # disable GPU as the batch size is too small
         run_all_windows(
             PROJECT_NAME,
             features_file_path,
