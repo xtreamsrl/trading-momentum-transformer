@@ -26,6 +26,9 @@ paper [Slow Momentum with Fast Reversion: A Trading Strategy Using Deep Learning
 7. Run one of the Momentum Transformer or Slow Momentum with Fast Reversion experiments
    with `python -m examples.run_dmn_experiment <<EXPERIMENT_NAME>>`
 
+## Running the code
+You can run the code using the PyCharm run configurations stored in the `.run` directory.
+
 ## Running Tensorboard
 Tensorboard can be run with `tensorboard --logdir=<<LOG_DIR>>` where `<<LOG_DIR>>` is the directory containing the
 logs from the training. By default, logs are saved to `results/<<EXPERIMENT_NAME>>/<<window>>/hp/tb_logs`.
