@@ -3,6 +3,7 @@ import gc
 import json
 import logging
 import os
+import shutil
 from typing import Tuple, List, Dict
 
 import numpy as np
@@ -21,6 +22,7 @@ from mom_trans.deep_momentum_network import LstmDeepMomentumNetworkModel
 from mom_trans.model_inputs import ModelFeatures
 from mom_trans.momentum_transformer import TftDeepMomentumNetworkModel
 from settings.default import BACKTEST_AVERAGE_BASIS_POINTS
+from settings.hp_grid import HP_MINIBATCH_SIZE
 
 physical_devices = tf.config.list_physical_devices("GPU")
 if physical_devices:
@@ -362,9 +364,9 @@ def run_single_window(
         train_interval: Tuple[int, int, int],
         params: dict,
         changepoint_lbws: List[int],
-        hp_minibatch_size: List[int],
         skip_if_completed: bool = True,
         asset_class_dictionary: Dict[str, str] = None,
+        hp_minibatch_size: List[int] = HP_MINIBATCH_SIZE,
 ):
     """Backtest for a single test window
 
@@ -551,8 +553,8 @@ def run_all_windows(
         train_intervals: List[Tuple[int, int, int]],
         params: dict,
         changepoint_lbws: List[int],
-        asset_class_dictionary: Dict[str, str],
-        hp_minibatch_size: List[int],
+        asset_class_dictionary=Dict[str, str],
+        hp_minibatch_size=HP_MINIBATCH_SIZE,
         standard_window_size=1,
 ):
     """Run experiment for multiple test intervals and aggregate results

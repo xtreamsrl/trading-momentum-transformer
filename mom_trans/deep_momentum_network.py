@@ -12,6 +12,13 @@ from empyrical import sharpe_ratio
 from keras_tuner.src.engine.tuner_utils import TunerCallback
 
 from mom_trans.model_inputs import ModelFeatures
+from settings.hp_grid import (
+    HP_HIDDEN_LAYER_SIZE,
+    HP_DROPOUT_RATE,
+    HP_MAX_GRADIENT_NORM,
+    HP_LEARNING_RATE,
+    HP_MINIBATCH_SIZE,
+)
 
 
 class SharpeLoss(keras.losses.Loss):
@@ -72,9 +79,7 @@ class SharpeValidationLoss(keras.callbacks.Callback):
         # ignoring null times
 
         # TODO sharpe
-        sharpe = tf.reduce_mean(captured_returns) / (
-                tf.math.reduce_std(captured_returns) + tf.constant(1e-9, dtype=tf.float64)) * tf.sqrt(
-            tf.constant(252.0, dtype=tf.float64))
+        sharpe = tf.reduce_mean(captured_returns) / (tf.math.reduce_std(captured_returns) + tf.constant(1e-9, dtype=tf.float64)) * tf.sqrt(tf.constant(252.0, dtype=tf.float64))
         if sharpe > self.best_sharpe + self.min_delta:
             logging.info(f"Epoch {epoch} -> Sharpe on validation improved from {self.best_sharpe} to {sharpe}")
             self.best_sharpe = sharpe
@@ -468,19 +473,15 @@ class DeepMomentumNetworkModel(ABC):
 
 class LstmDeepMomentumNetworkModel(DeepMomentumNetworkModel):
     def __init__(
-            self, project_name, hp_directory, hp_minibatch_size, **params
+            self, project_name, hp_directory, hp_minibatch_size=HP_MINIBATCH_SIZE, **params
     ):
         super().__init__(project_name, hp_directory, hp_minibatch_size, **params)
-        self.hidden_layer_size = int(params["hidden_layer_size"])
-        self.dropout_rate = params["dropout_rate"]
-        self.max_gradient_norm = params["max_gradient_norm"]
-        self.learning_rate = params["learning_rate"]
 
     def model_builder(self, hp):
-        hidden_layer_size = hp.Choice("hidden_layer_size", values=[self.hidden_layer_size])
-        dropout_rate = hp.Choice("dropout_rate", values=[self.dropout_rate])
-        max_gradient_norm = hp.Choice("max_gradient_norm", values=[self.max_gradient_norm])
-        learning_rate = hp.Choice("learning_rate", values=[self.learning_rate])
+        hidden_layer_size = hp.Choice("hidden_layer_size", values=HP_HIDDEN_LAYER_SIZE)
+        dropout_rate = hp.Choice("dropout_rate", values=HP_DROPOUT_RATE)
+        max_gradient_norm = hp.Choice("max_gradient_norm", values=HP_MAX_GRADIENT_NORM)
+        learning_rate = hp.Choice("learning_rate", values=HP_LEARNING_RATE)
         # minibatch_size = hp.Choice("hidden_layer_size", HP_MINIBATCH_SIZE)
 
         input = keras.Input((self.time_steps, self.input_size))

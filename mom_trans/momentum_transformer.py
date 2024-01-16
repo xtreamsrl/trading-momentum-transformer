@@ -17,7 +17,13 @@ Activation = keras.layers.Activation
 Lambda = keras.layers.Lambda
 
 from mom_trans.deep_momentum_network import DeepMomentumNetworkModel, SharpeLoss
-
+from settings.hp_grid import (
+    HP_DROPOUT_RATE,
+    HP_HIDDEN_LAYER_SIZE,
+    HP_LEARNING_RATE,
+    HP_MAX_GRADIENT_NORM,
+    HP_MINIBATCH_SIZE,
+)
 
 
 def tf_stack(x, axis=0):
@@ -312,7 +318,7 @@ class InterpretableMultiHeadAttention(keras.layers.Layer):
 
 
 class TftDeepMomentumNetworkModel(DeepMomentumNetworkModel):
-    def __init__(self, project_name, hp_directory, hp_minibatch_size, **params):
+    def __init__(self, project_name, hp_directory, hp_minibatch_size=HP_MINIBATCH_SIZE, **params):
         params = params.copy()
 
         self._input_placeholder = None
@@ -332,19 +338,17 @@ class TftDeepMomentumNetworkModel(DeepMomentumNetworkModel):
         self.num_heads = params["num_heads"]
         self.input_size = int(params["input_size"])
 
-        self.params = params.copy()
-
         super().__init__(project_name, hp_directory, hp_minibatch_size, **params)
 
     def model_builder(self, hp):
         self.hidden_layer_size = hp.Choice(
-            "hidden_layer_size", values=[self.params.get("hidden_layer_size")]
+            "hidden_layer_size", values=HP_HIDDEN_LAYER_SIZE
         )
-        self.dropout_rate = hp.Choice("dropout_rate", values=[self.params.get("dropout_rate")])
+        self.dropout_rate = hp.Choice("dropout_rate", values=HP_DROPOUT_RATE)
         self.max_gradient_norm = hp.Choice(
-            "max_gradient_norm", values=[self.params.get("max_gradient_norm")]
+            "max_gradient_norm", values=HP_MAX_GRADIENT_NORM
         )
-        self.learning_rate = hp.Choice("learning_rate", values=[self.params.get("learning_rate")])
+        self.learning_rate = hp.Choice("learning_rate", values=HP_LEARNING_RATE)
 
         time_steps = self.time_steps
         combined_input_size = self.input_size
