@@ -25,7 +25,7 @@
       </ENTRIES>
     </EXTENSION>
     <option name="SCRIPT_NAME" value="examples.run_dmn_experiment" />
-    <option name="PARAMETERS" value="TFT-SHORT 1990 2016 2018" />
+    <option name="PARAMETERS" value="TFT-SHORT 1990 2016 2024" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="true" />

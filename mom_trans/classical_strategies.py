@@ -201,8 +201,8 @@ class MACDStrategy:
                 srs.ewm(halflife=_calc_halflife(short_timescale)).mean()
                 - srs.ewm(halflife=_calc_halflife(long_timescale)).mean()
         )
-        q = macd / srs.rolling(63).std().bfill()
-        return q / q.rolling(252).std().bfill()
+        q = macd / (srs.rolling(63).std().bfill() + 1e-8)
+        return q / (q.rolling(252).std().bfill() + 1e-8)
 
     @staticmethod
     def scale_signal(y):

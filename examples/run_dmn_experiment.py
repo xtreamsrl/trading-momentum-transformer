@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from functools import reduce
+from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
@@ -14,12 +15,11 @@ from settings.hp_grid import HP_MINIBATCH_SIZE
 
 # define the asset class of each ticker here - for this example we have not done this
 TEST_MODE = False
-ASSET_CLASS_MAPPING = dict(zip(QUANDL_TICKERS, ["COMB"] * len(QUANDL_TICKERS)))
 TRAIN_VALID_RATIO = 0.90
 TIME_FEATURES = False
 FORCE_OUTPUT_SHARPE_LENGTH = None
 EVALUATE_DIVERSIFIED_VAL_SHARPE = True
-NAME = "experiment_quandl_100assets"
+NAME = "experiment_andre_features"
 
 
 def main(
@@ -120,10 +120,13 @@ def main(
         else:
             features_file_path = os.path.join(
                 "data",
-                "quandl_cpd_nonelbw.csv",
+                "andre_features.csv",
             )
 
         hp_minibatch_size = [32, 64, 128] if lstm_time_steps == 252 else HP_MINIBATCH_SIZE
+        andre_data_path = Path('/Users/donlelef/Git/trading-momentum-transformer/data/andre')
+        andre_tickers = [file_path.name.removesuffix('.csv') for file_path in andre_data_path.glob('*.csv')]
+        asset_class_mapping = dict(zip(andre_tickers, ["COMB"] * len(andre_tickers)))
 
         logging.info(f"Running experiment {PROJECT_NAME}")
         logging.info(f"Version: {v}")
@@ -131,7 +134,7 @@ def main(
         logging.info(f"Intervals: {intervals}")
         logging.info(f"Parameters: {params}")
         logging.info(f"Changepoint LBWs: {changepoint_lbws}")
-        logging.info(f"Asset class mapping: {ASSET_CLASS_MAPPING}")
+        logging.info(f"Asset class mapping: {asset_class_mapping}")
         logging.info(f"HP minibatch size: {hp_minibatch_size}")
         logging.info(f"Test window size: {test_window_size}")
         logging.info(f"GPU available: {tf.config.list_physical_devices('GPU')}")
@@ -142,7 +145,7 @@ def main(
             intervals,
             params,
             changepoint_lbws,
-            ASSET_CLASS_MAPPING,
+            asset_class_mapping,
             hp_minibatch_size,
             test_window_size,
         )

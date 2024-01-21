@@ -1,5 +1,6 @@
 import argparse
 import logging
+from pathlib import Path
 from typing import List
 
 import pandas as pd
@@ -95,11 +96,14 @@ if __name__ == "__main__":
 
         args = parser.parse_known_args()[0]
 
+        andre_data_path = Path('/Users/donlelef/Git/trading-momentum-transformer/data/andre')
+        andre_tickers = [file_path.name.removesuffix('.csv') for file_path in andre_data_path.glob('*.csv')]
+
         return (
-            QUANDL_TICKERS,
+            andre_tickers,
             CPD_QUANDL_OUTPUT_FOLDER(args.lookback_window_length),
             args.lookback_window_length,
-            FEATURES_QUANDL_FILE_PATH(args.lookback_window_length),
+            andre_data_path.parent / 'andre_features.csv',
             args.extra_lbw,
         )
 

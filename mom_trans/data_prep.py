@@ -97,7 +97,7 @@ def deep_momentum_strategy_features(df_asset: pd.DataFrame) -> pd.DataFrame:
     def calc_normalised_returns(day_offset):
         return (
                 calc_returns(df_asset["srs"], day_offset)
-                / df_asset["daily_vol"]
+                / (df_asset["daily_vol"] + 1e-8)  # avoid divide by zero
                 / np.sqrt(day_offset)
         )
 
